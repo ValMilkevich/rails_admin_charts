@@ -27,7 +27,10 @@ Highcharts.theme = {
     },
     tooltip: {
         borderWidth: 0,
-        backgroundColor: 'rgba(219,219,216,0.8)',
+        backgroundColor: 'rgba(255,255,255,0.8)',
+        borderColor: '#000',
+        borderRadius: 10,
+        color: '#fff',
         shadow: false
     },
     legend: {
@@ -86,6 +89,7 @@ Highcharts.setOptions(Highcharts.theme);
                     text: '<%= @abstract_model.to_s.pluralize %>'
                 },
                 xAxis: {
+
                   labels: {
                   <% if @abstract_model.model.label_rotation == "-45" %>
                     rotation: -45,
@@ -108,6 +112,10 @@ Highcharts.setOptions(Highcharts.theme);
                     yAxis: <%= raw @abstract_model.model.yaxis_raw  %>,
                 <% end %>
 
+                <% if @abstract_model.model.respond_to?(:annotations_data) %>
+                    annotations: <%= raw @abstract_model.model.annotations_data.to_json  %>,
+                <% end %>
+
 //                yAxis: {
 //                    title: {
 //                        text: 'Counts'
@@ -119,7 +127,20 @@ Highcharts.setOptions(Highcharts.theme);
                                 <%#Highcharts.dateFormat('%e. %b', this.x) +' -> '+ this.y;%>
                     <%#}%>
                 <%#},%>
+
                 plotOptions: {
+                    column: {
+                        stacking: 'normal',
+                        tooltip: {
+                            pointFormat: '<span style="color:{series.color}">{series.name}</span>: <b>{point.y}</b> ({point.percentage:.0f}%)<br/>',
+                            shared: true
+                        },
+                    },
+                    line: {
+                        dataLabels: {
+                            enabled: true
+                        }
+                    },
                     spline: {
                         lineWidth: 4,
                         states: {
