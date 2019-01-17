@@ -76,106 +76,107 @@ Highcharts.theme = {
 Highcharts.setOptions(Highcharts.theme);
 
     $(function () {
-        var chart;
-        $(document).ready(function() {
-            chart = new Highcharts.Chart({
-                chart: {
-                  <% if @abstract_model.model.chart_type == "column" %>
-                    type: 'column',
-                  <% end %>
-                  renderTo: 'growth_rate'
-                },
-                title: {
-                    text: '<%= @abstract_model.to_s.pluralize %>'
-                },
-                xAxis: {
+        $(document).on('ready readyAgain', function() {
+            setTimeout(function(){
+                new Highcharts.Chart({
+                    chart: {
+                      <% if @abstract_model.model.chart_type == "column" %>
+                        type: 'column',
+                      <% end %>
+                      renderTo: '<%= "#{ @abstract_model.model.render_to || :growth_rate }" %>'
+                    },
+                    title: {
+                        text: '<%= @abstract_model.to_s.pluralize %>'
+                    },
+                    xAxis: {
 
-                  labels: {
-                  <% if @abstract_model.model.label_rotation == "-45" %>
-                    rotation: -45,
-                  <% elsif @abstract_model.model.label_rotation == "-90" %>
-                    rotation: -90,
-                  <% end %>
-                  align: 'right'
-                  },
-                <% if @abstract_model.model.xaxis == "datetime" %>
-                  type: 'datetime'
-                <% elsif @abstract_model.model.chart_type == "pie" %>
-                <% else %>
-                  categories: <%=raw @abstract_model.model.xaxis.to_json %>
-                <% end %>
+                      labels: {
+                      <% if @abstract_model.model.label_rotation == "-45" %>
+                        rotation: -45,
+                      <% elsif @abstract_model.model.label_rotation == "-90" %>
+                        rotation: -90,
+                      <% end %>
+                      align: 'right'
+                      },
+                    <% if @abstract_model.model.xaxis == "datetime" %>
+                      type: 'datetime'
+                    <% elsif @abstract_model.model.chart_type == "pie" %>
+                    <% else %>
+                      categories: <%=raw @abstract_model.model.xaxis.to_json %>
+                    <% end %>
 
-                },
+                    },
 
 
-                <% if @abstract_model.model.respond_to?(:yaxis_raw) %>
-                    yAxis: <%= raw @abstract_model.model.yaxis_raw  %>,
-                <% end %>
+                    <% if @abstract_model.model.respond_to?(:yaxis_raw) %>
+                        yAxis: <%= raw @abstract_model.model.yaxis_raw  %>,
+                    <% end %>
 
-                <% if @abstract_model.model.respond_to?(:annotations_data) %>
-                    annotations: <%= raw @abstract_model.model.annotations_data.to_json  %>,
-                <% end %>
+                    <% if @abstract_model.model.respond_to?(:annotations_data) %>
+                        annotations: <%= raw @abstract_model.model.annotations_data.to_json  %>,
+                    <% end %>
 
-//                yAxis: {
-//                    title: {
-//                        text: 'Counts'
-//                    }
-//                },
-                <%#tooltip: {%>
-                    <%#formatter: function() {%>
-                        <%#return ''+%>
-                                <%#Highcharts.dateFormat('%e. %b', this.x) +' -> '+ this.y;%>
-                    <%#}%>
-                <%#},%>
+    //                yAxis: {
+    //                    title: {
+    //                        text: 'Counts'
+    //                    }
+    //                },
+                    <%#tooltip: {%>
+                        <%#formatter: function() {%>
+                            <%#return ''+%>
+                                    <%#Highcharts.dateFormat('%e. %b', this.x) +' -> '+ this.y;%>
+                        <%#}%>
+                    <%#},%>
 
-                plotOptions: {
-                    column: {
-                        stacking: 'normal',
-                        tooltip: {
-                            pointFormat: '<span style="color:{series.color}">{series.name}</span>: <b>{point.y}</b> ({point.percentage:.0f}%)<br/>',
-                            shared: true
+                    plotOptions: {
+                        column: {
+                            stacking: 'normal',
+                            tooltip: {
+                                pointFormat: '<span style="color:{series.color}">{series.name}</span>: <b>{point.y}</b> ({point.percentage:.0f}%)<br/>',
+                                shared: true
+                            },
                         },
-                    },
-                    line: {
-                        dataLabels: {
-                            enabled: true
-                        }
-                    },
-                    spline: {
-                        lineWidth: 4,
-                        states: {
-                            hover: {
-                                lineWidth: 5
+                        line: {
+                            dataLabels: {
+                                enabled: true
                             }
                         },
-                        marker: {
-                            enabled: false,
+                        spline: {
+                            lineWidth: 4,
                             states: {
                                 hover: {
-                                    enabled: true,
-                                    symbol: 'circle',
-                                    radius: 5,
-                                    lineWidth: 1
+                                    lineWidth: 5
+                                }
+                            },
+                            marker: {
+                                enabled: false,
+                                states: {
+                                    hover: {
+                                        enabled: true,
+                                        symbol: 'circle',
+                                        radius: 5,
+                                        lineWidth: 1
+                                    }
                                 }
                             }
                         }
+                    },
+                    <% if @abstract_model.model.chart_type == "pie" %>
+                      series: [{
+                        type: 'pie',
+                        name: 'Number of <%= @abstract_model.to_s.pluralize %>',
+                        data: <%=raw @abstract_model.model.graph_data.to_json %>
+                      }],
+                    <% else %>
+                      series: <%=raw @abstract_model.model.graph_data.to_json %>,
+                    <% end %>
+                    navigation: {
+                        menuItemStyle: {
+                            fontSize: '10px'
+                        }
                     }
-                },
-                <% if @abstract_model.model.chart_type == "pie" %>
-                  series: [{
-                    type: 'pie',
-                    name: 'Number of <%= @abstract_model.to_s.pluralize %>',
-                    data: <%=raw @abstract_model.model.graph_data.to_json %>
-                  }],
-                <% else %>
-                  series: <%=raw @abstract_model.model.graph_data.to_json %>,
-                <% end %>
-                navigation: {
-                    menuItemStyle: {
-                        fontSize: '10px'
-                    }
-                }
-            });
+                });
+            }, 0);
         });
     });
 </script>
